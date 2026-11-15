@@ -1,12 +1,15 @@
-"""Mandanten-Onboarding-Skript (LWP-12).
+"""Mandanten-Onboarding-Skript (LWP-12 / LWP-15).
 Lädt alle `tenants/<tenant_id>/tenant.yaml`, prüft die freigeschalteten Skills gegen die
-`SkillRegistry`, registriert den Mandanten im `RLSDatabasePool` und legt die
-`tenant_skill_bindings` sowie `ai_act_register`-Einträge mandantenisoliert an.
+`SkillRegistry`, registriert alle Skills im `skill_catalog` sowie den Mandanten im
+`RLSDatabasePool` und legt die `tenant_skill_bindings` sowie `ai_act_register`-Einträge
+mandantenisoliert an.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +27,24 @@ async def onboard_all_tenants(
     pool = db_pool or RLSDatabasePool()
     registry = SkillRegistry(skills_dir)
     registry.load_all()
+
+    # Registriere alle geladenen Skills im globalen skill_catalog
+    for manifest in registry.list_all():
+        m_dict = manifest.model_dump()
+        m_sha = hashlib.sha256(
+            json.dumps(m_dict, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+        await pool.register_skill_in_catalog(
+            skill_id=manifest.skill_id,
+            version=manifest.version,
+            name=manifest.name,
+            art=manifest.art,
+            wirkung=manifest.wirkung,
+            stufen=[int(s) for s in manifest.stufen],
+            max_schutzklasse=int(manifest.max_schutzklasse),
+            manifest_json=m_dict,
+            manifest_sha256=f"sha256:{m_sha}",
+        )
 
     onboarded: dict[str, dict[str, Any]] = {}
     if not tenants_dir.exists():

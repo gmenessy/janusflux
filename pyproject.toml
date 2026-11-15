@@ -31,6 +31,10 @@ dev = [
     "types-PyYAML>=6.0.12",
 ]
 
+[project.scripts]
+janusflux = "plattform.cli:main"
+plattform-cli = "plattform.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

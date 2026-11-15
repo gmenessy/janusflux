@@ -1,0 +1,49 @@
+{
+  "product": "JanusFlux – MediaPipe Ultra-Lightweight Skill & LLM-Wiki Platform",
+  "version": "2.1.0+mp",
+  "status": "DELIVERY_READY",
+  "components": {
+    "skills_registered": [
+      "antrag.vorpruefen",
+      "auskunft.recht",
+      "dokument.extrahieren",
+      "dokument.schwaerzen",
+      "eingang.routen"
+    ],
+    "wiki_nodes_count": 10,
+    "dmn_tables": [
+      "antrag_vollstaendigkeit",
+      "eingang_routing",
+      "skill_routing"
+    ]
+  },
+  "artifacts_sha256": {
+    "pyproject.toml": "sha256:55be8fc67f2918e9767a51e48cfb0d3c04989f694192e3cce6921d0fac941380",
+    "Makefile": "sha256:d716327557597ae9229ae6a2f2a8b624ae9c8ca7947563a22e18779ea39571bb",
+    "CLAUDE.md": "sha256:9e6c5dce9dac02a4c5945fe614f3b2020d7552cf6fd98cfb82f908c105baaafb",
+    "db/migrations/001_core_platform.sql": "sha256:579f3013e7273c8cc6e827e2a106670e3907971298877f9d3464815189293111",
+    "db/migrations/002_skills_and_lightweight.sql": "sha256:f3d5e4d52cb320895b6912ec324e187abe3f337b75d457f3e8e7099e93f5608b",
+    "rules/skill_routing.json": "sha256:55ba5a3cd2fbe68a1d6e5cfde6969553973ffb3b921cca9a1c52644196f91352",
+    "rules/antrag_vollstaendigkeit.json": "sha256:d09164d4e1e09c82c775ef80e98721f8a6af40a0e759479ff51bec0fd65afdad",
+    "rules/eingang_routing.json": "sha256:03da8ca552deb5160317bac621dbdf3d85929b986a3e4606196b684c98548f3d",
+    "models/gemma-4b-mediapipe.yaml": "sha256:5a28bb05b0944375f9ab438e6fbe2c99d3bcfc472d3c6743835dc6af348fdab4",
+    "models/mediapipe-embedder.yaml": "sha256:ebf581e0d9c70eb9b5ad88244681009841fdc095a96ae483484aa0c468d050b6",
+    "models/mediapipe-classifier.yaml": "sha256:eb19fa1aed7e16dc9904570997636b9d355496c094b915e65c51a7b69844c0d8",
+    "contracts/skill.detector.yaml": "sha256:3d3467dea2f63ebe9e4178c86cca64295810e9ee045528ddd6e190a8e45320bd",
+    "contracts/eingang.gate.yaml": "sha256:32dae4598ad12ed3ed6591eba95aba821c0ef30b768f42505f7d75369d9e62ec",
+    "contracts/antrag.nachweise.yaml": "sha256:480535df8da43e885ded975b19b59a27436a97cf1989be5f60049ec59b451835",
+    "contracts/schwaerzung.pruefung.yaml": "sha256:65ea9e888b6029f3ebc2a7efd2aeca79edabb6276e9f37ba93e6135f763a194c",
+    "skills/dokument.schwaerzen/skill.yaml": "sha256:6b9b72b0c7ab1901930a2a86bc57ef34637e79456bb6eff7e7b41618d3925838",
+    "skills/antrag.vorpruefen/skill.yaml": "sha256:39012a79694625788a4542322e53e332da702f29a7508c474ba59d98b4bcbf14",
+    "skills/dokument.extrahieren/skill.yaml": "sha256:415839c3b1d041c13e5709a4884b19ad4a2d8ec94af9ff6e3522ae6a30580624",
+    "skills/auskunft.recht/skill.yaml": "sha256:fe16ca1e50209a561237fbb7e1cf77a0197c55fce6f868cf4cc3bbedf8b864ec",
+    "skills/eingang.routen/skill.yaml": "sha256:00559fa82226b585035ebde48955a2ef74d36e7d91ed3d6772660815a67209a1",
+    "tenants/stadt-musterhausen/tenant.yaml": "sha256:85fc454643172bfe05c48a00ba17b286f22db37ac4b6f59d9bed77442e6d712b",
+    "deploy/compose/docker-compose.lightweight.yaml": "sha256:c0b48503c64dd44aead859eab274cb9a1fcfbb9699158f9944cc6bd46ffb071e",
+    "deploy/compose/Dockerfile.lightweight": "sha256:44c6879ac0050c6ddf9d9f057a2d4a43ac374868f4de159e969da8ec2dcea58d",
+    "deploy/opa/plattform_authz.rego": "sha256:878dbe2920fa4bac542e24b932a9cf6500044c8d9d15a707489e5bbef2cd75c2",
+    "gold/skill_detector.kal.jsonl": "sha256:dbf5c08992cab4482f567a885e68c0539db56603d5237f9337892ce26fd38511",
+    "gold/skill_detector.test.jsonl": "sha256:99387efb44b236bb1e7864401c3c4ba1c83fa19ddb5379b51185a85d745c6a71",
+    "eval/berichte/gemma-4b-mediapipe-de.md": "sha256:708fafa8b805da5582fdfaf918ce784632b28cac82508e2bd642df5fee3f2982"
+  }
+}
