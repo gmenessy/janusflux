@@ -1,0 +1,55 @@
+skill_id: dokument.extrahieren
+version: 1.0.0
+name: "Strukturierte Feld-Extraktion mit Fundstellennachweis"
+art: zusammengesetzt
+beschreibung: "Extrahiert strukturierte Datenfelder (Beträge, IBAN, Steuer-ID, Zeiträume, Parteien) aus Bescheiden, Rechnungen oder Anträgen mit wörtlichem Zitat und Bounding-Box."
+beispiele:
+  - "Extrahiere IBAN, Bruttomiete, Kaltmiete und Mietbeginn aus diesem Mietvertrag."
+  - "Lies Rechnungsbetrag, Leistungszeitraum und Leitweg-ID aus dem PDF aus."
+  - "Strukturierte Daten aus Einkommensnachweis extrahieren."
+trigger_patterns:
+  - '\bextrahier(e|en|ung)\b'
+  - '\bFelder\s+auslesen\b'
+stufen: [0, 1, 2]
+wirkung: read
+max_schutzklasse: 3
+eingabe_schema:
+  type: object
+  required: ["dokument_text", "zielfelder"]
+  properties:
+    dokument_text: { type: string }
+    zielfelder: { type: array, items: { type: string } }
+ausgabe_schema:
+  type: object
+  required: ["felder"]
+  properties:
+    felder:
+      type: object
+      additionalProperties:
+        type: object
+        required: ["wert", "zitat", "konfidenz_pfad"]
+        properties:
+          wert: { type: ["string", "number", "null"] }
+          zitat: { type: ["string", "null"] }
+          konfidenz_pfad: { type: string, enum: ["auto", "human"] }
+steps:
+  - step_id: s1_regex_pruefziffern
+    stufe: 0
+    action: "p2.extract_deterministic_fields"
+    begruendung: "Direkte Extraktion von IBAN (Mod 97), Steuer-ID (ISO 7064), Datum und Beträgen"
+  - step_id: s2_llm_restfelder
+    stufe: 2
+    action: "p5.extract_remaining_fields"
+    prompt_id: "extraktion.mit_zitat"
+    begruendung: "Extraktion unstrukturierter Restfelder über MediaPipe Gemma 4B mit Zitatpflicht"
+  - step_id: s3_zitat_gate
+    stufe: 0
+    action: "p3.verify_exact_quotes"
+    begruendung: "Strikte VAL-007-Prüfung: Jedes Zitat muss wörtlich in der redacted_view stehen"
+budget:
+  llm_aufrufe: 1
+  max_input_tokens: 2048
+  zeit_s: 40
+verantwortlich:
+  fachlich: sg-digitalisierung
+  technisch: plattform-team

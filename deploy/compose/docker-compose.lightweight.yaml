@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: plattform-pg17
+    environment:
+      POSTGRES_USER: plattform_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_secret_change_me}
+      POSTGRES_DB: plattform
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../../db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plattform_admin -d plattform"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  opa:
+    image: openpolicyagent/opa:0.70.0-static
+    container_name: plattform-opa
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "/policies/plattform_authz.rego"
+    volumes:
+      - ../opa:/policies:ro
+
+  platform-api:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.lightweight
+    container_name: plattform-api
+    command: ["uv", "run", "uvicorn", "plattform.main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "2"]
+    environment:
+      DATABASE_URL: postgresql://plattform_admin:${POSTGRES_PASSWORD:-dev_secret_change_me}@postgres:5432/plattform
+      OPA_URL: http://opa:8181
+      WIKI_DIR: /app/wiki
+      MEDIAPIPE_LLM_PATH: /models/mediapipe/gemma-3-4b-it-int4.task
+      MEDIAPIPE_CLASSIFIER_PATH: /models/mediapipe/verwaltung_de_classifier.tflite
+      LOCAL_VAULT_MASTER_KEY_B64: ${LOCAL_VAULT_MASTER_KEY_B64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ../../wiki:/app/wiki:ro
+      - ../../models_assets:/models/mediapipe:ro
+      - ../../logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      opa:
+        condition: service_started
+
+  platform-worker:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/Dockerfile.lightweight
+    container_name: plattform-worker
+    command: ["uv", "run", "python", "-m", "plattform.runtime.worker"]
+    environment:
+      DATABASE_URL: postgresql://plattform_admin:${POSTGRES_PASSWORD:-dev_secret_change_me}@postgres:5432/plattform
+      WIKI_DIR: /app/wiki
+      MEDIAPIPE_LLM_PATH: /models/mediapipe/gemma-3-4b-it-int4.task
+      MEDIAPIPE_CLASSIFIER_PATH: /models/mediapipe/verwaltung_de_classifier.tflite
+      LOCAL_VAULT_MASTER_KEY_B64: ${LOCAL_VAULT_MASTER_KEY_B64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+    volumes:
+      - ../../wiki:/app/wiki:ro
+      - ../../models_assets:/models/mediapipe:ro
+      - ../../logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

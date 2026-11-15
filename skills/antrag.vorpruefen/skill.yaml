@@ -1,0 +1,61 @@
+skill_id: antrag.vorpruefen
+version: 1.0.0
+name: "Formale Antrags-Vorprüfung & Vollständigkeitscheck"
+art: zusammengesetzt
+beschreibung: "Prüft Anträge (z. B. Wohngeld, Elterngeld, Sondernutzung) auf Pflichtfelder, vorhandene Nachweise und Plausibilität, berechnet Nachforderungsfristen nach § 31 VwVfG und erstellt den Nachforderungsentwurf."
+beispiele:
+  - "Prüfe diesen Wohngeldantrag auf Vollständigkeit der Unterlagen."
+  - "Sind Einkommensnachweis, Mietbescheinigung und Ausweis vollständig vorhanden?"
+  - "Formale Vorprüfung des eingegangenen Antrags durchführen und fehlende Belege nachfordern."
+trigger_patterns:
+  - '\bVollständigkeitsprüfung\b'
+  - '\bWohngeldantrag\b'
+  - '\bVorprüfung\b'
+stufen: [0, 1, 2, 3]
+wirkung: reversible_write
+max_schutzklasse: 3
+eingabe_schema:
+  type: object
+  required: ["antrag_formular", "anlagen_texte"]
+  properties:
+    antrag_formular: { type: object }
+    anlagen_texte: { type: array, items: { type: string } }
+ausgabe_schema:
+  type: object
+  required: ["korb", "aktion", "frist_datum"]
+  properties:
+    korb: { type: string, enum: ["GRUEN", "GELB", "ROT"] }
+    aktion: { type: string }
+    frist_datum: { type: ["string", "null"] }
+    nachforderung_text: { type: ["string", "null"] }
+steps:
+  - step_id: s1_pflichtfelder
+    stufe: 0
+    action: "p3.check_mandatory_fields"
+    begruendung: "Deterministischer Abgleich der Pflichtfelder im Antragsformular"
+  - step_id: s2_nachweise_decision
+    stufe: 1
+    action: "p3.decide"
+    contract: "antrag.nachweise"
+    begruendung: "System-One-Prüfung, ob Einkommens-, Miet- und Identitätsnachweis vorliegen"
+  - step_id: s3_dmn_korb
+    stufe: 0
+    action: "p3.rule"
+    table_id: "antrag_vollstaendigkeit"
+    begruendung: "Deterministische Zuordnung in Korb Grün, Gelb oder Rot inkl. Frist nach § 31 VwVfG"
+  - step_id: s4_nachforderung_formulieren
+    stufe: 2
+    action: "p5.generate_if_rot"
+    prompt_id: "nachforderung.kurz"
+    begruendung: "Kurze sprachliche Zusammenfassung der fehlenden Unterlagen über MediaPipe Gemma 4B"
+  - step_id: s5_post_gate
+    stufe: 0
+    action: "p3.validate_output"
+    begruendung: "Abwärtsprüfung von Fristdatum, Zitaten und PII-Freiheit"
+budget:
+  llm_aufrufe: 1
+  max_input_tokens: 2048
+  zeit_s: 45
+verantwortlich:
+  fachlich: fachbereich-soziales
+  technisch: plattform-team

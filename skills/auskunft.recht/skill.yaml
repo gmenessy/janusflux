@@ -1,0 +1,50 @@
+skill_id: auskunft.recht
+version: 1.0.0
+name: "Quellengebundene Rechts- und Satzungsauskunft"
+art: zusammengesetzt
+beschreibung: "Beantwortet rechtliche und fachliche Fragen zu Gesetzen, kommunalen Satzungen und Dienstanweisungen mittels Dreipfad-RAG (Dense + DE-BM25 + Exact-Match) und strikter Zitatprüfung (VAL-007)."
+beispiele:
+  - "Welche Rechtsgrundlage gilt nach § 31 VwVfG für die Fristberechnung?"
+  - "Wie lautet die kommunale Satzungsregelung zur Sondernutzungsgebühr?"
+  - "Rechtsauskunft mit wörtlichem Gesetzestext und Fundstelle erstellen."
+trigger_patterns:
+  - '\bRechtsauskunft\b'
+  - '\bSatzungsauskunft\b'
+  - '\bRechtsgrundlage\b'
+stufen: [0, 1, 2]
+wirkung: read
+max_schutzklasse: 2
+eingabe_schema:
+  type: object
+  required: ["fragestellung"]
+  properties:
+    fragestellung: { type: string }
+    stichtag: { type: string }
+ausgabe_schema:
+  type: object
+  required: ["antwort_satz", "zitat_wortlaut", "norm_fundstelle"]
+  properties:
+    antwort_satz: { type: string }
+    zitat_wortlaut: { type: string }
+    norm_fundstelle: { type: string }
+steps:
+  - step_id: s1_hybrid_retrieve
+    stufe: 0
+    action: "p4.retrieve_top4"
+    begruendung: "Dreipfad-RRF-Suche (Dense + DE-BM25 + Exact-Match) mit 1-Hop-Norm-Nachladen (Top-4)"
+  - step_id: s2_llm_antwort
+    stufe: 2
+    action: "p5.synthesize_legal_answer"
+    prompt_id: "auskunft.mit_zitat"
+    begruendung: "Kompakte Zusammenfassung der Rechtslage über MediaPipe Gemma 4B mit Originalzitat"
+  - step_id: s3_zitat_post_gate
+    stufe: 0
+    action: "p3.verify_exact_quotes"
+    begruendung: "Deterministische Abwärtsprüfung (VAL-007), dass das Zitat exakt in den Chunks steht"
+budget:
+  llm_aufrufe: 1
+  max_input_tokens: 2048
+  zeit_s: 35
+verantwortlich:
+  fachlich: rechtsamt
+  technisch: plattform-team

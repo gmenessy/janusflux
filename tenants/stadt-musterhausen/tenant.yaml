@@ -1,0 +1,22 @@
+tenant_id: stadt-musterhausen
+name: "Stadtverwaltung Musterhausen"
+bundesland: "NW"
+max_schutzklasse: 3
+daily_token_budget: 500000
+approved_by_l3: "dezernent-digitalisierung@musterhausen.de"
+enabled_skills:
+  - skill_id: dokument.schwaerzen
+    version: "1.0.0"
+  - skill_id: antrag.vorpruefen
+    version: "1.0.0"
+  - skill_id: dokument.extrahieren
+    version: "1.0.0"
+  - skill_id: auskunft.recht
+    version: "1.0.0"
+  - skill_id: eingang.routen
+    version: "1.0.0"
+ai_act_systems:
+  - system_id: "skill.detector"
+    risikoklasse: "limited"
+  - system_id: "antrag.vorpruefen"
+    risikoklasse: "high_risk"

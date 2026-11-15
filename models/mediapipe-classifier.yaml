@@ -1,0 +1,12 @@
+modell: mediapipe-classifier
+hersteller: Google / Plattform-Kalibrierung
+lizenz: Apache-2.0
+stufe: 1
+capabilities: [system_one_noul, system_one_choice, system_one_score]
+model_path: "/models/mediapipe/verwaltung_de_classifier.tflite"
+sha256_manifest:
+  verwaltung_de_classifier.tflite: "sha256:3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d"
+api: mediapipe_text_classifier_plus_readout
+serving:
+  laufzeit: mediapipe_tasks_text
+  timeout_ms: 250

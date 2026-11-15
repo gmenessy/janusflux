@@ -1,0 +1,51 @@
+skill_id: eingang.routen
+version: 1.0.0
+name: "Posteingangs-Klassifikation & Zuständigkeits-Routing"
+art: zusammengesetzt
+beschreibung: "Klassifiziert eingehende Bürgeranliegen, E-Mails und Schreiben über den kalibrierten MediaPipe Decision Port (Stufe 1) und routet sie deterministisch per DMN-Entscheidungstabelle an das zuständige Fachamt."
+beispiele:
+  - "Bitte dieses Bürgeranliegen dem zuständigen Fachamt in der Poststelle zuordnen."
+  - "Posteingang klassifizieren und an Sozialamt oder Bauamt weiterleiten."
+  - "Zuständigkeitsprüfung für eingegangenes Schreiben durchführen."
+trigger_patterns:
+  - '\bPosteingang\b'
+  - '\bZuständigkeits[-\s]?Routing\b'
+  - '\bPoststelle\s+zuordnen\b'
+stufen: [0, 1]
+wirkung: reversible_write
+max_schutzklasse: 3
+eingabe_schema:
+  type: object
+  required: ["eingang_text"]
+  properties:
+    eingang_text: { type: string }
+    kanal: { type: string }
+ausgabe_schema:
+  type: object
+  required: ["ziel_organisationseinheit", "prioritaet", "routing_modus"]
+  properties:
+    ziel_organisationseinheit: { type: string }
+    prioritaet: { type: string }
+    routing_modus: { type: string }
+steps:
+  - step_id: s1_pii_redact
+    stufe: 0
+    action: "p2.redact_input"
+    begruendung: "Erzeugung der pseudonymisierten redacted_view vor dem Stufe-1-Decision-Aufruf"
+  - step_id: s2_eingang_decision
+    stufe: 1
+    action: "p3.decide"
+    contract: "eingang.gate"
+    begruendung: "Kalibrierte Klassifikation des Anliegens und Eilfall-Erkennung mit CRC-Schwelle"
+  - step_id: s3_dmn_routing
+    stufe: 0
+    action: "p3.rule"
+    table_id: "eingang_routing"
+    begruendung: "Deterministische Zuständigkeitszuordnung über DMN-Tabelle eingang_routing"
+budget:
+  llm_aufrufe: 0
+  max_input_tokens: 1024
+  zeit_s: 15
+verantwortlich:
+  fachlich: zentrale-poststelle
+  technisch: plattform-team

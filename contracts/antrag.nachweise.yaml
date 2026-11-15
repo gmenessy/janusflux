@@ -1,0 +1,26 @@
+id: antrag.nachweise
+version: 1
+owner: fachbereich-soziales
+stufe: 1
+model:
+  primary: mediapipe-classifier
+  fallback: human_workbench
+max_state_tokens: 1024
+timeout_ms: 250
+questions:
+  - id: einkommensnachweis_vorhanden
+    type: noul
+    statement: "In den beigefügten Anlagen ist ein Einkommens- oder Gehaltsnachweis erkennbar enthalten."
+    thresholds:
+      yes_above: 0.70
+      no_below: 0.25
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.015
+  - id: mietnachweis_vorhanden
+    type: noul
+    statement: "In den beigefügten Anlagen ist ein Mietvertrag oder eine Mietbescheinigung erkennbar enthalten."
+    thresholds:
+      yes_above: 0.70
+      no_below: 0.25
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.015

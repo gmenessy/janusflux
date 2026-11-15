@@ -1,0 +1,79 @@
+{
+  "table_id": "antrag_vollstaendigkeit",
+  "version": 1,
+  "hit_policy": "FIRST",
+  "owner": "fachbereich-soziales",
+  "rechtsgrundlage": "§§ 24, 26, 31 VwVfG i.V.m. § 60 SGB I (Mitwirkungspflichten)",
+  "input_schema": {
+    "pflichtfelder_vollstaendig": "boolean",
+    "einkommensnachweis_pfad": "string",
+    "mietnachweis_pfad": "string"
+  },
+  "output_schema": {
+    "korb": "string",
+    "aktion": "string",
+    "frist_tage": "integer"
+  },
+  "rules": [
+    {
+      "rule_id": "R1_PFLICHTFELDER_ODER_NACHWEIS_FEHLT",
+      "conditions": [
+        { "field": "pflichtfelder_vollstaendig", "operator": "==", "value": false }
+      ],
+      "output": {
+        "korb": "ROT",
+        "aktion": "NACHFORDERUNG_ERSTELLEN",
+        "frist_tage": 14
+      },
+      "begruendung_template": "Pflichtangaben im Formular unvollständig; Nachforderung mit 14 Tagen Frist (§ 31 VwVfG)."
+    },
+    {
+      "rule_id": "R2_EINKOMMENSNACHWEIS_FEHLT",
+      "conditions": [
+        { "field": "einkommensnachweis_pfad", "operator": "==", "value": "no" }
+      ],
+      "output": {
+        "korb": "ROT",
+        "aktion": "NACHFORDERUNG_ERSTELLEN",
+        "frist_tage": 14
+      },
+      "begruendung_template": "Einkommensnachweis fehlt; Nachforderung mit 14 Tagen Frist (§ 31 VwVfG)."
+    },
+    {
+      "rule_id": "R3_MIETNACHWEIS_FEHLT",
+      "conditions": [
+        { "field": "mietnachweis_pfad", "operator": "==", "value": "no" }
+      ],
+      "output": {
+        "korb": "ROT",
+        "aktion": "NACHFORDERUNG_ERSTELLEN",
+        "frist_tage": 14
+      },
+      "begruendung_template": "Mietbescheinigung fehlt; Nachforderung mit 14 Tagen Frist (§ 31 VwVfG)."
+    },
+    {
+      "rule_id": "R4_VOLLSTAENDIG_GRUEN",
+      "conditions": [
+        { "field": "pflichtfelder_vollstaendig", "operator": "==", "value": true },
+        { "field": "einkommensnachweis_pfad", "operator": "==", "value": "yes" },
+        { "field": "mietnachweis_pfad", "operator": "==", "value": "yes" }
+      ],
+      "output": {
+        "korb": "GRUEN",
+        "aktion": "FACHPRUEFUNG_FREIGEBEN",
+        "frist_tage": 0
+      },
+      "begruendung_template": "Alle Pflichtfelder und Nachweise liegen vollständig vor (Korb GRÜN)."
+    },
+    {
+      "rule_id": "R5_UNSICHER_GELB",
+      "conditions": [],
+      "output": {
+        "korb": "GELB",
+        "aktion": "WORKBENCH_VORLAGE",
+        "frist_tage": 0
+      },
+      "begruendung_template": "Nachweisprüfung unterhalb der Sicherheitsschwelle; manuelle Sichtung in Korb GELB."
+    }
+  ]
+}

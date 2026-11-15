@@ -1,0 +1,40 @@
+id: skill.detector
+version: 1
+owner: plattform
+stufe: 1
+model:
+  primary: mediapipe-classifier-or-gemma-readout
+  fallback: human_workbench
+max_state_tokens: 1024
+timeout_ms: 250
+questions:
+  - id: ziel_skill
+    type: choice
+    options_source: "dynamic_top_k_skills"
+    bidirectional_ensemble: false
+    thresholds:
+      auto_crc_lambda: 0.84
+      alpha_risk_bound: 0.015
+  - id: kein_skill_passt
+    type: noul
+    statement: "Die Anfrage verlangt eine Aufgabe, die durch keinen der zur Auswahl stehenden Verwaltungs-Skills fachlich abgedeckt wird."
+    thresholds:
+      yes_above: 0.25
+      no_below: 0.10
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.01
+  - id: pflichtangaben_fehlen
+    type: noul
+    statement: "Im Eingabetext fehlen zwingend erforderliche Angaben oder Dokumentverweise, um den Skill sinnvoll zu starten."
+    thresholds:
+      yes_above: 0.30
+      no_below: 0.10
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.02
+calibration:
+  method: temperature_plus_crc
+  temperature: 1.18
+  fitted_on: gold/skill_detector.kal.jsonl
+goldset:
+  path: gold/skill_detector.test.jsonl
+  min_items: 200

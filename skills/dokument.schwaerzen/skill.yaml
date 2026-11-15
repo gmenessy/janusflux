@@ -1,0 +1,55 @@
+skill_id: dokument.schwaerzen
+version: 1.0.0
+name: "Akten- und Dokumentenschwärzung (IFG / RIS)"
+art: zusammengesetzt
+beschreibung: "Erkennt personenbezogene Daten sowie Betriebs- und Geschäftsgeheimnisse in PDF-Dokumenten und führt nach L1-Freigabe eine unumkehrbare physische PDF-Schwärzung durch."
+beispiele:
+  - "Bitte schwärzen Sie alle Personennamen und Adressen in dieser Stellungnahme für das Ratsinformationssystem."
+  - "IFG-Anfrage: Akte vor Herausgabe anonymisieren und Kontodaten entfernen."
+  - "Dokument für öffentliche Sitzungsvorlage schwärzen."
+trigger_patterns:
+  - '\bschwärz(en|ung)\b'
+  - '\bIFG[-\s]?Anfrage\b'
+  - '\bRatsinformationssystem\b'
+stufen: [0, 1, 3]
+wirkung: reversible_write
+max_schutzklasse: 3
+eingabe_schema:
+  type: object
+  required: ["doc_id", "zweck"]
+  properties:
+    doc_id: { type: string, format: uuid }
+    zweck: { type: string, enum: ["ifg_auskunft", "ratsinfo_oeffentlich", "akteneinsicht"] }
+ausgabe_schema:
+  type: object
+  required: ["redacted_doc_id", "removed_spans_count", "text_layer_clean"]
+  properties:
+    redacted_doc_id: { type: string }
+    removed_spans_count: { type: integer, minimum: 0 }
+    text_layer_clean: { type: boolean }
+steps:
+  - step_id: s1_pii_scan
+    stufe: 0
+    action: "p2.detect_pii_bboxes"
+    begruendung: "Deterministische Erkennung von Prüfziffern und Presidio-Entitäten samt PDF-Koordinaten"
+  - step_id: s2_context_decision
+    stufe: 1
+    action: "p3.decide"
+    contract: "schwaerzung.pruefung"
+    begruendung: "Abgrenzung Privatperson vs. Amtsträger in dienstlicher Funktion"
+  - step_id: s3_human_approval
+    stufe: 3
+    action: "p8.approve"
+    level: "L1"
+    begruendung: "Menschliche Kontrolle der Schwärzungsmaske im Split-Screen vor physischer Entfernung"
+  - step_id: s4_physical_redact
+    stufe: 0
+    action: "p11.redact_pdf_physical"
+    begruendung: "Physische Entfernung der Glyphen aus dem PDF-Content-Stream und 0-%-Resttext-Prüfung"
+budget:
+  llm_aufrufe: 0
+  max_input_tokens: 1500
+  zeit_s: 30
+verantwortlich:
+  fachlich: datenschutz
+  technisch: plattform-team

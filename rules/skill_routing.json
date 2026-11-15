@@ -1,0 +1,61 @@
+{
+  "table_id": "skill_routing",
+  "version": 1,
+  "hit_policy": "FIRST",
+  "owner": "plattform",
+  "rechtsgrundlage": "Plattform-Steuerungsregel für automatische Skill-Ausführung (§ 35a VwVfG, CaMeL-Isolation)",
+  "input_schema": {
+    "kein_skill_passt_pfad": "string",
+    "pflichtangaben_fehlen_pfad": "string",
+    "ziel_skill_pfad": "string",
+    "skill_wirkung": "string",
+    "input_tainted": "boolean"
+  },
+  "output_schema": {
+    "routing_action": "string",
+    "require_human_before_start": "boolean"
+  },
+  "rules": [
+    {
+      "rule_id": "R1_KEIN_SKILL_PASST",
+      "conditions": [
+        { "field": "kein_skill_passt_pfad", "operator": "==", "value": "yes" }
+      ],
+      "output": { "routing_action": "REJECT_NO_SKILL", "require_human_before_start": false },
+      "begruendung_template": "Kein registrierter Plattform-Skill deckt das Anliegen fachlich ab."
+    },
+    {
+      "rule_id": "R2_PFLICHTANGABEN_FEHLEN",
+      "conditions": [
+        { "field": "pflichtangaben_fehlen_pfad", "operator": "==", "value": "yes" }
+      ],
+      "output": { "routing_action": "REQUIRE_CLARIFICATION", "require_human_before_start": false },
+      "begruendung_template": "Für den erkannten Skill fehlen notwendige Pflichtangaben; deterministische Rückfrage erforderlich."
+    },
+    {
+      "rule_id": "R3_IRREVERSIBLE_ODER_TAINTED_WRITE_SCHUTZ",
+      "conditions": [
+        { "field": "skill_wirkung", "operator": "==", "value": "irreversible" },
+        { "field": "input_tainted", "operator": "==", "value": true }
+      ],
+      "output": { "routing_action": "ROUTE_TO_WORKBENCH", "require_human_before_start": true },
+      "begruendung_template": "CaMeL-Schutzregel (F-10): Irreversibler Skill auf nicht-vertrauenswürdigem Fremdtext erfordert menschliche Vorab-Freigabe."
+    },
+    {
+      "rule_id": "R4_SICHERE_AUTOMATISCHE_AUSFUEHRUNG",
+      "conditions": [
+        { "field": "kein_skill_passt_pfad", "operator": "==", "value": "no" },
+        { "field": "pflichtangaben_fehlen_pfad", "operator": "==", "value": "no" },
+        { "field": "ziel_skill_pfad", "operator": "==", "value": "auto" }
+      ],
+      "output": { "routing_action": "AUTO_EXECUTE", "require_human_before_start": false },
+      "begruendung_template": "Skill wurde über der CRC-Risikoschwelle eindeutig erkannt; Vorbedingungen sind erfüllt."
+    },
+    {
+      "rule_id": "R5_DEFAULT_WORKBENCH",
+      "conditions": [],
+      "output": { "routing_action": "ROUTE_TO_WORKBENCH", "require_human_before_start": true },
+      "begruendung_template": "Fail-Closed Standardregel: Unsichere Skill-Erkennung wird der Sachbearbeitung in der Workbench vorgelegt."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "table_id": "eingang_routing",
+  "version": 1,
+  "hit_policy": "FIRST",
+  "owner": "poststelle",
+  "rechtsgrundlage": "Geschäftsordnung der Kommunalverwaltung – Zuständigkeitsverteilung",
+  "input_schema": {
+    "anliegen_pfad": "string",
+    "anliegen_wert": "string",
+    "frist_oder_eilfall_pfad": "string"
+  },
+  "output_schema": {
+    "ziel_organisationseinheit": "string",
+    "prioritaet": "string",
+    "routing_modus": "string"
+  },
+  "rules": [
+    {
+      "rule_id": "R1_EILFALL_SOFORTVORLAGE",
+      "conditions": [
+        { "field": "frist_oder_eilfall_pfad", "operator": "==", "value": "yes" }
+      ],
+      "output": {
+        "ziel_organisationseinheit": "EILPOSTSTELLE_LEITUNG",
+        "prioritaet": "SOFORT",
+        "routing_modus": "HUMAN_PRIORITY"
+      },
+      "begruendung_template": "Fristgebundener Rechtsbehelf oder Eilfall erkannt; sofortige Vorlage."
+    },
+    {
+      "rule_id": "R2_SOZIALES_AUTO",
+      "conditions": [
+        { "field": "anliegen_pfad", "operator": "==", "value": "auto" },
+        { "field": "anliegen_wert", "operator": "==", "value": "wohngeld_soziales" }
+      ],
+      "output": {
+        "ziel_organisationseinheit": "AMT_50_SOZIALES",
+        "prioritaet": "NORMAL",
+        "routing_modus": "AUTO_ROUTED"
+      },
+      "begruendung_template": "Eindeutige Zuordnung an Amt 50 (Soziales & Wohnen)."
+    },
+    {
+      "rule_id": "R3_BAUAMT_AUTO",
+      "conditions": [
+        { "field": "anliegen_pfad", "operator": "==", "value": "auto" },
+        { "field": "anliegen_wert", "operator": "==", "value": "bau_sondernutzung" }
+      ],
+      "output": {
+        "ziel_organisationseinheit": "AMT_60_BAUORDNUNG",
+        "prioritaet": "NORMAL",
+        "routing_modus": "AUTO_ROUTED"
+      },
+      "begruendung_template": "Eindeutige Zuordnung an Amt 60 (Bauordnung & Sondernutzung)."
+    },
+    {
+      "rule_id": "R4_DEFAULT_CLEARING",
+      "conditions": [],
+      "output": {
+        "ziel_organisationseinheit": "ZENTRALE_CLEARINGSTELLE",
+        "prioritaet": "NORMAL",
+        "routing_modus": "WORKBENCH_CLEARING"
+      },
+      "begruendung_template": "Konfidenz unter Schwelle; Vorlage an die zentrale Clearingstelle."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+id: eingang.gate
+version: 1
+owner: poststelle
+stufe: 1
+model:
+  primary: mediapipe-classifier
+  fallback: human_workbench
+max_state_tokens: 1024
+timeout_ms: 250
+questions:
+  - id: anliegen
+    type: choice
+    options: ["wohngeld_soziales", "bau_sondernutzung", "allgemeine_anfrage"]
+    thresholds:
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.02
+  - id: frist_oder_eilfall
+    type: noul
+    statement: "Das Schreiben enthält einen fristgebundenen Widerspruch, Eilantrag oder gerichtlichen Rechtsbehelf."
+    thresholds:
+      yes_above: 0.20
+      no_below: 0.10
+      auto_crc_lambda: 0.85
+      alpha_risk_bound: 0.01

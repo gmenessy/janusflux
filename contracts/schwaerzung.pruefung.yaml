@@ -1,0 +1,18 @@
+id: schwaerzung.pruefung
+version: 1
+owner: datenschutz
+stufe: 1
+model:
+  primary: mediapipe-classifier
+  fallback: human_workbench
+max_state_tokens: 1024
+timeout_ms: 250
+questions:
+  - id: schwaerzung_erforderlich
+    type: noul
+    statement: "Die Textstelle enthält personenbezogene Daten einer Privatperson oder schützenswerte Geschäftsgeheimnisse."
+    thresholds:
+      yes_above: 0.25
+      no_below: 0.10
+      auto_crc_lambda: 0.88
+      alpha_risk_bound: 0.01
