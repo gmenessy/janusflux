@@ -1,0 +1,39 @@
+# ============================================================================
+# Dockerfile.lightweight – Ultra-Lightweight MediaPipe & LLM-Wiki Appliance
+# ============================================================================
+FROM python:3.11-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir uv
+
+COPY pyproject.toml README.md ./
+COPY src/ ./src/
+COPY workflows/ ./workflows/
+COPY skills/ ./skills/
+COPY rules/ ./rules/
+COPY contracts/ ./contracts/
+COPY models/ ./models/
+COPY wiki/ ./wiki/
+COPY tenants/ ./tenants/
+COPY scripts/ ./scripts/
+
+RUN uv venv /app/.venv && \
+    uv pip install --python /app/.venv/bin/python -e . && \
+    groupadd -r plattform && useradd -r -g plattform -d /app plattform && \
+    mkdir -p /app/logs && chown -R plattform:plattform /app
+
+USER plattform
+
+EXPOSE 8080
+
+CMD ["uv", "run", "--no-sync", "uvicorn", "plattform.main:app", "--host", "0.0.0.0", "--port", "8080"]
