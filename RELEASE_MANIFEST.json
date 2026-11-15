@@ -44,6 +44,7 @@
     "deploy/opa/plattform_authz.rego": "sha256:878dbe2920fa4bac542e24b932a9cf6500044c8d9d15a707489e5bbef2cd75c2",
     "gold/skill_detector.kal.jsonl": "sha256:dbf5c08992cab4482f567a885e68c0539db56603d5237f9337892ce26fd38511",
     "gold/skill_detector.test.jsonl": "sha256:99387efb44b236bb1e7864401c3c4ba1c83fa19ddb5379b51185a85d745c6a71",
-    "eval/berichte/gemma-4b-mediapipe-de.md": "sha256:708fafa8b805da5582fdfaf918ce784632b28cac82508e2bd642df5fee3f2982"
+    "eval/berichte/gemma-4b-mediapipe-de.md": "sha256:708fafa8b805da5582fdfaf918ce784632b28cac82508e2bd642df5fee3f2982",
+    "docs/ONBOARDING_UND_NUTZUNGSHANDBUCH.md": "sha256:a946a9254bcbff31997916da1df06b5d4fc493c4edfd7e4bedbaafae761e6c09"
   }
 }

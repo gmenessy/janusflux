@@ -2,6 +2,8 @@
 
 **JanusFlux (`verwaltung-genai-plattform-lightweight`, Version `2.1.0+mp`)** ist die auslieferungsfähige Ultra-Lightweight-Referenzimplementierung der kommunalen GenAI-Verwaltungsplattform auf Basis von **Google MediaPipe (LiteRT)**, einer **deklarativen Vier-Stufen-Skill-Engine** und einem **strukturierten SQLite-FTS5/BM25 LLM-Wiki** mit nativem `[[Wiki-Link]]`-Normgraphen.
 
+> **Onboarding & Nutzungshandbuch:** Eine vollständige Schritt-für-Schritt-Anleitung für IT-Betreiber, Kommunal-Administratoren, Wissensredakteure und Sachbearbeiter befindet sich in [`docs/ONBOARDING_UND_NUTZUNGSHANDBUCH.md`](docs/ONBOARDING_UND_NUTZUNGSHANDBUCH.md).
+
 ---
 
 ## 1. Kernarchitektur & Sicherheitsgarantien

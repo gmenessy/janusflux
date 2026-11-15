@@ -52,6 +52,7 @@ REQUIRED_RELEASE_ARTIFACTS: tuple[str, ...] = (
     "gold/skill_detector.kal.jsonl",
     "gold/skill_detector.test.jsonl",
     "eval/berichte/gemma-4b-mediapipe-de.md",
+    "docs/ONBOARDING_UND_NUTZUNGSHANDBUCH.md",
 )
 
 
